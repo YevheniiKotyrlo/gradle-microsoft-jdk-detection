@@ -1,27 +1,25 @@
-| :memo: | There is a matching reproducer for the Groovy DSL [here](https://github.com/gradle/gradle-issue-reproducer/tree/groovy-dsl) |
-|---|---|
+# Gradle does not detect a Microsoft Build of OpenJDK installed by its MSI
 
-# Gradle issue reproducer
+On Windows, the Microsoft Build of OpenJDK's MSI registers each install under
+`HKLM\SOFTWARE\Microsoft\JDK\<version>\hotspot\MSI` (value `Path`), and Gradle's toolchain auto-detection does not read
+that key. This build's daemon JVM criteria (`gradle/gradle-daemon-jvm.properties`) ask for JDK 25 with no download URL,
+and its wrapper runs the Gradle nightly of `master`.
 
-This is a template repository to create reproducer projects for Gradle issues.
-The template contains a GitHub Action definition that runs a Gradle build upon each code change.
-To quickly learn how it works, check the following screencast:
+On Windows, with the Microsoft Build of OpenJDK 25 installed by its MSI (`winget install Microsoft.OpenJDK.25`) and
+`JAVA_HOME` naming another JDK, such as the Microsoft Build of OpenJDK 17:
 
-https://user-images.githubusercontent.com/419883/147940456-d0c96c90-f2b5-4574-8133-09647db9545a.mov
+```
+git clone https://github.com/YevheniiKotyrlo/gradle-microsoft-jdk-detection
+cd gradle-microsoft-jdk-detection
+gradlew.bat -g %TEMP%\empty-gradle-user-home help
+```
 
-## How to use the template
+The empty Gradle user home keeps a JDK Gradle provisioned earlier out of the detection.
 
-- Fork this repository
-  - On the main page, click the `Use this Template` button
-  - Specify the user/org name and a repository name
-  - Select `Public` for repository type
-  - Select `Include all branches`
-  - Click `Create Repository from template`
-- Modify the project in the repository to reproduce the issue
-  - You can clone your new forked repository locally and push changes, as usual
-  - You can also edit your reproducer in an online editor by replacing `github.com` with `github.dev` in the URL (or by pressing the '.' key on the keyboard).
-- Adjust the [GitHub Action file](.github/workflows/run-reproducer.yml)
-  - You can configure the executed Gradle tasks as well as the environment (task options, log level, JVM version, operating system, etc)
-  - The documentation for the Gradle GitHub Action is available [here](https://github.com/gradle/actions/blob/main/docs/setup-gradle.md)
-- Verify that the reproducer exhibits the problem on the [GitHub Action page](https://github.com/gradle/gradle-issue-reproducer/actions)
-- Link your reproducer to the issue
+Expected: the daemon starts on the installed JDK 25. Seen:
+
+```
+Unable to download toolchain matching the requirements ({languageVersion=25, vendor=any vendor, implementation=vendor-specific, nativeImageCapable=false}) from 'null', due to: No defined toolchain download url for WINDOWS on x86_64 architecture.
+```
+
+The workflow in `.github/workflows/run-reproducer.yml` runs the same on `windows-latest`.

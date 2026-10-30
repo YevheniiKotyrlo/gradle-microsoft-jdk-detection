@@ -1,1 +1,1 @@
-rootProject.name = "reproducer-project"
+rootProject.name = "microsoft-jdk-detection"
