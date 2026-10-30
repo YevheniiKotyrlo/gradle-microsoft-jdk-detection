@@ -19,7 +19,7 @@ The empty Gradle user home keeps a JDK Gradle provisioned earlier out of the det
 Expected: the daemon starts on the installed JDK 25. Seen:
 
 ```
-Unable to download toolchain matching the requirements ({languageVersion=25, vendor=any vendor, implementation=vendor-specific, nativeImageCapable=false}) from 'null', due to: No defined toolchain download url for WINDOWS on x86_64 architecture.
+Unable to download toolchain matching the requirements ({languageVersion=25, vendor=any vendor, implementation=vendor-specific, nativeImageCapable=false}), due to: No defined toolchain download url for WINDOWS on x86_64 architecture.
 ```
 
 The workflow in `.github/workflows/run-reproducer.yml` runs the same on `windows-latest`.
